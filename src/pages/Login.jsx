@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import authBg from "../assets/authBg.png";
 import { IoEyeOutline } from "react-icons/io5";
 import { IoEyeOffOutline } from "react-icons/io5";
 import { Link, useNavigate } from 'react-router-dom';
