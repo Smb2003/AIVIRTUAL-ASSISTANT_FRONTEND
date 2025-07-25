@@ -29,7 +29,7 @@ const SignUp = () => {
   }
   return (
     <div 
-    className={`md:h-screen sm:h-screen h-[100dvh] w-full  flex justify-center items-center bg-[url("./src/assets/authBg.png")] md:bg-cover bg-contain  `}
+    className={`md:h-screen sm:h-screen h-[100dvh] w-full  flex justify-center items-center bg-[url("/authBg.png")] md:bg-cover bg-contain  `}
     >
     <div className='w-[80%] md:w-[40%] sm:w-[70%] p-6 text-white rounded-md backdrop-blur-md shadow-2xl shadow-black flex flex-col'>
       <h2 className='font-semibold md:text-2xl sm:text-2xl text-xl text-center md:py-5 py-6'>Register to <span className='text-blue-800 font-bold'>Virtual Assistant</span></h2>
