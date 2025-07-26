@@ -6,14 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 
 const HomePage = () => {
-  const { getVirtualAssistantData, virtualAssistantData,gemini, geminiResponse } = getVirtualAssistanceData();
+  const { getVirtualAssistantData,gemini, geminiResponse } = getVirtualAssistanceData();
   const navigate = useNavigate();
   const { logOut } = getAuth();
   const [triggerWord,setTriggerWord] = useState(null);
   const [singleUser,setSingleUser] = useState(null);
   const [spoken, setSpoken] = useState(false);
   const {user} = getAuth();
-  console.log(getVirtualAssistantData);
+
   const {
     transcript,
     listening,
@@ -31,7 +31,6 @@ const HomePage = () => {
     const waitForVoices = setInterval(() => {
       if (synth.getVoices().length !== 0) {
         clearInterval(waitForVoices);
-        console.log(text);
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.voice = synth.getVoices().find(v => v.lang == 'en-US');
         utterance.lang = 'en-US';
@@ -40,12 +39,11 @@ const HomePage = () => {
         utterance.volume = 10;
         synth.speak(utterance);
       }
-    }, 200);
+    }, 100);
   };
+
   const handleCommand = (data)  => {
     const {type,userinput,response} = data;
-    console.log(data);
-    console.log("Response",response);
     speakText(response);
     
     if(type == "google_search"){
@@ -63,7 +61,8 @@ const HomePage = () => {
       window.open(`https://www.facebook.com/`,'_blank')
     }
     if(type == "weather_show"){
-      window.open(`https://www.google.com/search?q=weather`,'_blank')
+      const query = encodeURIComponent(userinput);
+      window.open(`https://www.google.com/search?q=${query}`,'_blank')
     }
     if(type == "youtube_search" || type == "youtube_play"){
       const query = encodeURIComponent(userinput);
@@ -78,12 +77,11 @@ const HomePage = () => {
       
     }
   }
+
   useEffect(()=>{
     setSingleUser(getVirtualAssistantData || null);
     setTriggerWord(getVirtualAssistantData?.assistantName?.toLowerCase());
   },[getVirtualAssistantData])
-  console.log("trigger: ",triggerWord)
-  console.log(singleUser);
   
   useEffect(()=>{
   if (!browserSupportsSpeechRecognition) {
@@ -92,7 +90,6 @@ const HomePage = () => {
   },[browserSupportsSpeechRecognition])
   
   useEffect(()=>{
-
     SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
 
     return () => {
@@ -100,33 +97,32 @@ const HomePage = () => {
       SpeechRecognition.abortListening();
     };
   },[])
+
   useEffect(()=>{
     const processTranscript = async () => {
       const spokenText = transcript?.toLowerCase();
-      console.log("Trigger word before condition detected:", spokenText);
       if (spokenText.includes(triggerWord) && !spoken) {
-        console.log("Trigger word detected:", spokenText);
         setSpoken(true);
 
         const response = await gemini(spokenText);
-        console.log("Gemini Response:", response);
-
-        
-        setTimeout(() => {
-          console.log("SetTimeOutCalled;")
           handleCommand(response);
-        }, 200);
-
         
+        // setTimeout(() => {
+        //   console.log("SetTimeOutCalled;")
+        //   handleCommand(response);
+        // }, 200);
+
         setTimeout(() => {
           resetTranscript();
           setSpoken(false); 
-        }, 10000);
+        }, 4000);
       }
     };
 
     processTranscript();
   },[transcript])
+  
+  
   return (
     <div className='relative'>
       <div className='h-screen w-full flex flex-col justify-center items-center gap-16 bg-gradient-to-t from-black from-20% to-blue-950'>
@@ -139,7 +135,7 @@ const HomePage = () => {
         </div>
         <div>
           {/* <div><button className='text-white' onClick={()=>{speakText(geminiResponse?.response)}}>Speak</button></div> */}
-          {transcript&&
+          {(transcript)&&
             <p className="text-white font-xl ">{geminiResponse?.response}</p>}
         </div>
         

@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import axiosInstance from '../config/AxiosInstance';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { getAuth } from './AuthContext';
 
 const virtualAssistant = createContext();
@@ -13,7 +11,7 @@ const VirtualAssistant = ({children}) => {
     const [geminiResponse,setGeminiResponse] = useState(null);
     const [error,setError] = useState("");
     const {user} = getAuth();
-    console.log(user);
+
     const submitData = async (data) => {
       try {
           const response = await axiosInstance.post("/addData",data);
@@ -29,46 +27,51 @@ const VirtualAssistant = ({children}) => {
           return false;
       }
     }
+
     useEffect(()=>{
-      if (!user?._id) return; // wait for user to load
+      if (!user?._id) return; 
       (async ()=>{
           try {
           const response = await axiosInstance.get("/getData");
           if(response?.data?.statusCode == 200){
-            console.log("data: ",response?.data?.data);
             const data = response?.data?.data;
-            console.log(data);
 
             const matchedItem = data?.find((item) => {
-              console.log("Item Owner: ", item?.owner?.toString());
-              console.log("User ID: ", user?._id?.toString());
-
               return item?.owner?.toString() === user?._id?.toString();
             });
-            console.log(matchedItem);
-            setGetVirtualAssistantData(matchedItem);
+            setGetVirtualAssistantData((prev) => 
+                Array.isArray(prev) 
+              ?
+                [...prev.filter(x => x.owner !== user?._id), matchedItem]
+              :
+              matchedItem
+            );
           }
         } catch (error) {
           console.log("Error: ",error?.response?.data?.message);
           setGetVirtualAssistantData(null);
         }}
       )()
-    },[user])
-    const editVirtualAssistantData = (data) => {
-      
-      (async () => {
-        try {
-          const response = await axiosInstance.post("/editData",data);
-          if(response?.data?.statusCode == 200){
-            setGetVirtualAssistantData(response?.data?.data[0]);
-            return true
-          }
-        } catch (error) {
-          console.log("Error on updation: ",error);
-          return false;
-        }
+    },[user,virtualAssistantData])
 
-      })();
+    const editVirtualAssistantData =async (data) => {
+      if (!user?._id) return;
+      try {
+        const response = await axiosInstance.put("/editData",data);
+        if(response?.data?.statusCode == 200){
+          setGetVirtualAssistantData((prev) => 
+            Array.isArray(prev) 
+          ?
+            [...prev.filter(x => x.owner !== user?._id), response?.data?.data[0]]
+          :
+          response?.data?.data[0]
+          );
+          return true;
+        }
+      } catch (error) {
+        console.log("Error on updation: ",error?.response?.data?.message);
+        return false;
+      }
     }
     const gemini = async (command) => {
       console.log("command",command);

@@ -4,13 +4,11 @@ import { getVirtualAssistanceData } from '../Context/virtualAssistant';
 import { IoArrowBackSharp } from "react-icons/io5";
 const CustomizeName = () => {
     const [inputText,setInputText] = useState(null);
-    const location = useLocation();
-    const {submitData,virtualAssistantData,error,getVirtualAssistantData,editVirtualAssistantData} = getVirtualAssistanceData();
-    const navigate = useNavigate();
     const [loading,setLoading] = useState(false);
+    const {submitData,getVirtualAssistantData,editVirtualAssistantData} = getVirtualAssistanceData();
+    const location = useLocation();
+    const navigate = useNavigate();
 
-    console.log("Image:", virtualAssistantData);
-    console.log(inputText);
     const handleSubmitForm = async (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -25,6 +23,7 @@ const CustomizeName = () => {
             else{
                 setLoading(true);
                 navigate(`/virtualAssistant`);
+                window.location.reload();
                 setLoading(false);
             }
         }

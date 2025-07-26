@@ -1,13 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Card from './Card';
 import { FaFileUpload } from "react-icons/fa";
 import { getVirtualAssistanceData } from '../Context/virtualAssistant';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 const Customize = () => {
     const [image,setImage] = useState(null);
     const [backendImage,setBackendImage] = useState(null);
     const {selectedImage,setSelectedImage} = getVirtualAssistanceData();
-    console.log(location);
     const navigate = useNavigate();
 
     const imageRef = useRef(null);
@@ -37,11 +36,11 @@ const Customize = () => {
         <div className='flex flex-wrap justify-center items-center gap-2 sm:w-[70%] md:w-[90%] w-full p-3 mb-2'>
             <Card image={"/image1.png"}/>
             <Card image={"/image2.jpg"}/>
-            <Card image={"/public/authBg.png"}/>
-            <Card image={"/public/image4.png"}/>
-            <Card image={"/public/image5.png"}/>
-            <Card image={"/public/image6.jpeg"}/>
-            <Card image={"/public/image7.jpeg"}/>
+            <Card image={"/authBg.png"}/>
+            <Card image={"/image4.png"}/>
+            <Card image={"/image5.png"}/>
+            <Card image={"/image6.jpeg"}/>
+            <Card image={"/image7.jpeg"}/>
             <div className={`md:w-[150px] md:h-[210px] sm:w-[120px] sm:h-[220px] w-[30%] h-[200px] flex justify-center items-center border  rounded-md bg-blue-900 overflow-hidden hover:backdrop-blur-md hover:shadow-2xl hover:shadow-black hover:border-2 border-white cursor-pointer ${selectedImage == backendImage ? "border-2 border-white" : "border-dashed"}`} 
             onClick={()=>{
                 imageRef.current.click()
