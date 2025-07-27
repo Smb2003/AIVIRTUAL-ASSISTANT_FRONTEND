@@ -89,10 +89,17 @@ const HomePage = () => {
   },[browserSupportsSpeechRecognition])
   
   useEffect(()=>{
+  const onFirstInteraction = () => {
     SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+    window.removeEventListener('click', onFirstInteraction);
+  };
 
-    return () => {
-      console.log("unmount")
+  window.addEventListener('click', onFirstInteraction);
+
+  
+  return () => {
+    console.log("unmount")
+      window.removeEventListener('click', onFirstInteraction);
       SpeechRecognition.abortListening();
     };
   },[])
