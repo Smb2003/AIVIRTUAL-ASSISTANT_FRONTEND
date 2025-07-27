@@ -32,7 +32,7 @@ const Customize = () => {
     }
   return (
     <div  className='md:h-screen min-h-[100dvh] flex flex-col w-full md:p-10 justify-center items-center bg-gradient-to-t from-black to-blue-900 text-white'>
-        <h2 className='md:text-2xl text-3xl py-4 md:py-0'>Select your <span className='text-blue-600'>Assistant Image</span></h2>
+        <h2 className='md:text-2xl text-2xl py-4 md:py-0'>Select your <span className='text-blue-600'>Assistant Image</span></h2>
         <div className='flex flex-wrap justify-center items-center gap-2 sm:w-[70%] md:w-[90%] w-full p-3 mb-2'>
             <Card image={"/image1.png"}/>
             <Card image={"/image2.jpg"}/>
