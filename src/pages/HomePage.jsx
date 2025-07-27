@@ -112,6 +112,9 @@ const HomePage = () => {
       SpeechRecognition.abortListening();
     };
   },[])
+  useEffect(()=>{
+    SpeechRecognition.startListening({continuous: true, language: "en-US"})
+  },[])
   useEffect(() => {
     console.log("Transcript: ", transcript);
     console.log("Listening: ", listening);
