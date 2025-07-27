@@ -13,8 +13,10 @@ const HomePage = () => {
   const [spoken, setSpoken] = useState(false);
   const {user} = getAuth();
   const [transcript,setTranscript ] = useState('');
+  const [listening,setListening] = useState(false);
   const shouldRestartRef = useRef(true);
   const recognitionRef = useRef(null);
+   const isRecognitionRef = useRef(false);
   
   const handleSubmitForm = async () => {
     await logOut();
@@ -32,6 +34,9 @@ const HomePage = () => {
         utterance.rate = 1 
         utterance.pitch = 3;
         utterance.volume = 10;
+        utterance.onend = () => {
+          recognitionRef.current.start();
+        }
         synth.speak(utterance);
       }
     }, 100);
@@ -77,71 +82,150 @@ const HomePage = () => {
       setTriggerWord(getVirtualAssistantData?.assistantName?.toLowerCase());
     },[getVirtualAssistantData])
     
-
-    useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Your browser doesn't support Speech Recognition");
+  useEffect(()=>{
+    const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!speechRecognition){
+      alert("Browser doesn't support the browser.")
       return;
     }
-
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-
+    recognition.lang = "en-US";
     recognitionRef.current = recognition;
 
-    recognition.onstart = () => {
-      console.log("Mic started");
-    };
-
-    recognition.onresult = async (event) => {
-      const result = event.results[event.results.length - 1][0].transcript;
-      console.log("Result :", result);
-
-      const spokenText = result.toLowerCase();
-      setTranscript(spokenText);
-
-      if (spokenText.includes(triggerWord) && !spoken) {
-        setSpoken(true);
-        const response = await gemini(spokenText);
-        handleCommand(response);
-
-        setTimeout(() => {
-          setSpoken(false);
-          setTranscript("");
-        }, 4000);
+    const safeRecognition = () => {
+      if(!recognition.current && !isRecognitionRef.current){
+        try {
+          recognition.start();
+          console.log("Recognition Start");
+        } catch (error) {
+            if(error.name !== "InvalidStateError"){
+              console.log("Start Error: ",error);
+            }
+        } 
       }
-    };
+    }
+    
+    recognition.onstart = () => {
+      console.log("Recognition Started.")
+      isRecognitionRef.current = true
+      setListening(true);
 
-    recognition.onerror = (event) => {
-      console.error("Speech Recognition Error:", event.error);
-    };
+    }
 
     recognition.onend = () => {
-      console.log("Mic ended");
-      if (shouldRestartRef.current) {
-        console.log("Restarting mic...");
-        recognition.start();
-      }
-    };
+      console.log("Recognition end");
+      isRecognitionRef.current = false;
+      setListening(false);
+    }
+    if(!transcript){
+      setTimeout(()=>{
+        safeRecognition()
+      },1000)
+    }
 
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(() => {
-        shouldRestartRef.current = true;
-        recognition.start();
-      })
-      .catch(err => {
-        console.error("Mic permission error:", err);
-      });
+    recognition.onerror = (event) => {
+      console.log("Recognition Error: ",event.error);
+      isRecognitionRef.current = false;
+      setListening(false);
+      if(event.error !== "aborted" && !transcript){
+        setTimeout(()=>{
+          safeRecognition()
+        },1000)
+      }
+    }
+    recognition.onresult = async (e) => {
+      const transcriptResult = e.results[e.results.length-1][0].transcript.trim();
+      setTranscript(transcriptResult?.toLowerCase());
+      if(transcript.includes(triggerWord)){
+        setListening(false);
+        recognition.stop();
+        isRecognitionRef.current = false
+        const response = await gemini(transcriptResult);
+        if(response){
+          handleCommand(response)
+        }
+      }
+    } 
+
+    const fallback = setInterval(()=>{
+      if(!recognition.current && !isRecognitionRef.current){
+        safeRecognition()
+      }
+    },1000);
 
     return () => {
-      shouldRestartRef.current = false;
-      recognition.stop();
-      console.log("Cleanup: mic stopped");
-    };
-  }, [triggerWord]);
+      isRecognitionRef.current = false;
+      recognition.stop()
+      setListening(false)
+      clearInterval(fallback);
+    }
+  })
+
+  //   useEffect(() => {
+  //   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  //   if (!SpeechRecognition) {
+  //     alert("Your browser doesn't support Speech Recognition");
+  //     return;
+  //   }
+
+  //   const recognition = new SpeechRecognition();
+  //   recognition.continuous = true;
+  //   recognition.interimResults = false;
+  //   recognition.lang = 'en-US';
+
+  //   recognitionRef.current = recognition;
+
+  //   recognition.onstart = () => {
+  //     console.log("Mic started");
+  //   };
+
+  //   recognition.onresult = async (event) => {
+  //     const result = event.results[event.results.length - 1][0].transcript;
+  //     console.log("Result :", result);
+
+  //     const spokenText = result.toLowerCase();
+  //     setTranscript(spokenText);
+
+  //     if (spokenText.includes(triggerWord) && !spoken) {
+  //       setSpoken(true);
+  //       const response = await gemini(spokenText);
+  //       handleCommand(response);
+
+  //       setTimeout(() => {
+  //         setSpoken(false);
+  //         setTranscript("");
+  //       }, 4000);
+  //     }
+  //   };
+
+  //   recognition.onerror = (event) => {
+  //     console.error("Speech Recognition Error:", event.error);
+  //   };
+
+  //   recognition.onend = () => {
+  //     console.log("Mic ended");
+  //     if (shouldRestartRef.current) {
+  //       console.log("Restarting mic...");
+  //       recognition.start();
+  //     }
+  //   };
+
+  //   navigator.mediaDevices.getUserMedia({ audio: true })
+  //     .then(() => {
+  //       shouldRestartRef.current = true;
+  //       recognition.start();
+  //     })
+  //     .catch(err => {
+  //       console.error("Mic permission error:", err);
+  //     });
+
+  //   return () => {
+  //     shouldRestartRef.current = false;
+  //     recognition.stop();
+  //     console.log("Cleanup: mic stopped");
+  //   };
+  // }, [triggerWord]);
 
 
   
