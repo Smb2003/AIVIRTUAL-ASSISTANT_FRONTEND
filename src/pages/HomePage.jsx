@@ -91,17 +91,16 @@ const HomePage = () => {
   useEffect(()=>{
     console.log("mount,Mic on")
     const  onFirstInteraction = () => {
-      SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
-      const recognition = SpeechRecognition.getRecognition();
+      SpeechRecognition.startListening({ continuous: true, language: 'en-US',interimResults: false});      
+      setTimeout(() => {
+        const recognition = SpeechRecognition.getRecognition();
+        if (recognition) {
+          recognition.onresult = (e) => {
+            console.log("🎧 Manual onresult:", e);
+          };
+        }
+      }, 100);
 
-      if (recognition){
-        console.log(recognition);
-        recognition.onresult = (e) => {
-          console.log("🎧 Manual onresult: ", e);
-        }}
-        else{
-          console.log("No recognition found.")
-        };
       console.log("Start listening");
       window.removeEventListener('click', onFirstInteraction); 
     }
