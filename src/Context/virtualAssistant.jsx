@@ -52,7 +52,7 @@ const VirtualAssistant = ({children}) => {
           setGetVirtualAssistantData(null);
         }}
       )()
-    },[user,virtualAssistantData])
+    },[user,virtualAssistantData,getVirtualAssistantData])
 
     const editVirtualAssistantData =async (data) => {
       if (!user?._id) return;

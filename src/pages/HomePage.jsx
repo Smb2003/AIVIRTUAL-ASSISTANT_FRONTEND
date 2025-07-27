@@ -109,7 +109,7 @@ const HomePage = () => {
     console.log("Transcript: ", transcript);
     console.log("Listening: ", listening);
   }, [transcript, listening]);
-  
+
   useEffect(()=>{
     const processTranscript = async () => {
       const spokenText = transcript?.toLowerCase();
@@ -136,10 +136,10 @@ const HomePage = () => {
   },[transcript])
   
   useEffect(() => {
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(stream => console.log("🎤 Access granted — stream active"))
-    .catch(err => console.error("❌ Mic error:", err));
-}, []);
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => console.log("🎤 Access granted — stream active"))
+      .catch(err => console.error("❌ Mic error:", err));
+  }, []);
   return (
     <div className='relative'>
       <div className='h-screen w-full flex flex-col justify-center items-center gap-16 bg-gradient-to-t from-black from-20% to-blue-950'>
@@ -154,6 +154,9 @@ const HomePage = () => {
           {listening && <div><p className="text-white font-xl ">listening</p></div>}
           {(transcript)&&
             <p className="text-white font-xl ">{geminiResponse?.response}</p>}
+            <Button onClick={() => {
+              SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+            }}>Start Listening</Button>
         </div>
         
       </div>
