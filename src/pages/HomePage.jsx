@@ -1,9 +1,8 @@
-import { React, useEffect, useState } from 'react';
+import { React, useEffect, useRef, useState } from 'react';
 import AudioGif from "/user.gif";
 import { getVirtualAssistanceData } from '../Context/virtualAssistant';
 import { getAuth } from '../Context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 
 const HomePage = () => {
   const { getVirtualAssistantData,gemini, geminiResponse } = getVirtualAssistanceData();
@@ -14,14 +13,8 @@ const HomePage = () => {
   const [spoken, setSpoken] = useState(false);
   const {user} = getAuth();
   const [transcript,setTranscript ] = useState('');
-
-  // const {
-  //   transcript,
-  //   listening,
-  //   resetTranscript,
-  //   browserSupportsSpeechRecognition
-  // } = useSpeechRecognition();
-
+  const shouldRestartRef = useRef();
+  
   const handleSubmitForm = async () => {
     await logOut();
     navigate("/Login");
@@ -78,15 +71,14 @@ const HomePage = () => {
     }
   }
 
-  useEffect(()=>{
-    setSingleUser(getVirtualAssistantData || null);
-    setTriggerWord(getVirtualAssistantData?.assistantName?.toLowerCase());
-  },[getVirtualAssistantData])
-  
+    useEffect(()=>{
+      setSingleUser(getVirtualAssistantData || null);
+      setTriggerWord(getVirtualAssistantData?.assistantName?.toLowerCase());
+    },[getVirtualAssistantData])
+    
 
-  useEffect(() => {
+    useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
     if (!SpeechRecognition) {
       alert("Your browser doesn't support Speech Recognition");
       return;
@@ -97,8 +89,10 @@ const HomePage = () => {
     recognition.interimResults = false;
     recognition.lang = 'en-US';
 
+    recognitionRef.current = recognition;
+
     recognition.onstart = () => {
-      console.log("Mic started automatically");
+      console.log("Mic started");
     };
 
     recognition.onresult = async (event) => {
@@ -106,17 +100,16 @@ const HomePage = () => {
       console.log("Result :", result);
 
       const spokenText = result.toLowerCase();
-      setTranscript(spokenText)
+      setTranscript(spokenText);
+
       if (spokenText.includes(triggerWord) && !spoken) {
         setSpoken(true);
-
         const response = await gemini(spokenText);
         handleCommand(response);
 
         setTimeout(() => {
           setSpoken(false);
-          setTranscript("")
-
+          setTranscript("");
         }, 4000);
       }
     };
@@ -126,14 +119,29 @@ const HomePage = () => {
     };
 
     recognition.onend = () => {
-      console.log("Restarting mic...");
-      recognition.start();
+      console.log("Mic ended");
+      if (shouldRestartRef.current) {
+        console.log("Restarting mic...");
+        recognition.start();
+      }
     };
 
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(() => {
+        shouldRestartRef.current = true;
+        recognition.start();
+      })
+      .catch(err => {
+        console.error("Mic permission error:", err);
+      });
+
     return () => {
+      shouldRestartRef.current = false;
       recognition.stop();
+      console.log("Cleanup: mic stopped");
     };
   }, [triggerWord]);
+
 
   
   useEffect(() => {
