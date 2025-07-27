@@ -82,43 +82,34 @@ const HomePage = () => {
     setTriggerWord(getVirtualAssistantData?.assistantName?.toLowerCase());
   },[getVirtualAssistantData])
   
-  useEffect(()=>{
-  if (!browserSupportsSpeechRecognition) {
-    return <span>Browser doesn't support speech recognition.</span>;
-  }
-  },[browserSupportsSpeechRecognition])
   
-  useEffect(()=>{
-    console.log("mount,Mic on")
-    const onFirstInteraction = () => {
-      SpeechRecognition.startListening({ continuous: true, language: 'en-US',interimResults: false});      
-      setTimeout(() => {
-        const recognition = SpeechRecognition.getRecognition();
-        if (recognition) {
-          recognition.onresult = (e) => {
-            console.log("🎧 Manual onresult:", e);
-          };
-        }
-      }, 100);
-
-      console.log("Start listening");
-      window.removeEventListener('click', onFirstInteraction); 
+  useEffect(() => {
+    if (!browserSupportsSpeechRecognition) {
+      alert("Browser doesn't support Speech Recognition");
+      return <span>Browser doesn't support speech recognition.</span>;
+      
     }
-     window.addEventListener('click', onFirstInteraction);
-  
-  return () => {
-    console.log("unmount")
-      window.removeEventListener('click', onFirstInteraction);
-      SpeechRecognition.abortListening();
+
+    const handleClickToStart = () => {
+      SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+      window.removeEventListener('click', handleClickToStart);
+      console.log("🎙️ Mic started");
     };
-  },[])
-  useEffect(()=>{
-    SpeechRecognition.startListening({continuous: true, language: "en-US"})
-  },[])
+
+    window.addEventListener('click', handleClickToStart);
+
+    return () => {
+      SpeechRecognition.abortListening();
+      window.removeEventListener('click', handleClickToStart);
+      console.log("🔇 Mic stopped");
+    };
+  }, []);
+
   useEffect(() => {
     console.log("Transcript: ", transcript);
     console.log("Listening: ", listening);
   }, [transcript, listening]);
+  
   useEffect(()=>{
     const processTranscript = async () => {
       const spokenText = transcript?.toLowerCase();
