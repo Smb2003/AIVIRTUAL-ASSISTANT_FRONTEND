@@ -108,6 +108,7 @@ const HomePage = () => {
   useEffect(()=>{
     const processTranscript = async () => {
       const spokenText = transcript?.toLowerCase();
+      console.log(spokenText)
       if (spokenText.includes(triggerWord) && !spoken) {
         setSpoken(true);
 
