@@ -154,9 +154,11 @@ const HomePage = () => {
           {listening && <div><p className="text-white font-xl ">listening</p></div>}
           {(transcript)&&
             <p className="text-white font-xl ">{geminiResponse?.response}</p>}
-            <Button onClick={() => {
+            <button
+            className='rounded-md bg-white text-black w-full px-2 py-2 font-semibold hover:cursor-pointer hover:bg-black hover:text-white hover:border hover:border-dashed' 
+            onClick={() => {
               SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
-            }}>Start Listening</Button>
+            }}>Start Listening</button>
         </div>
         
       </div>
