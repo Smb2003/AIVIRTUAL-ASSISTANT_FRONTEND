@@ -93,9 +93,6 @@ const HomePage = () => {
     const  onFirstInteraction = () => {
       SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
       console.log("Start listening");
-      SpeechRecognition.onstart = () => console.log("🎙️ Mic started");
-      SpeechRecognition.onend = () => console.log("🔇 Mic ended");
-      SpeechRecognition.onerror = e => console.error("❌ Error:", e);
       window.removeEventListener('click', onFirstInteraction); 
     }
      window.addEventListener('click', onFirstInteraction);
@@ -106,7 +103,10 @@ const HomePage = () => {
       SpeechRecognition.abortListening();
     };
   },[])
-
+  useEffect(() => {
+    console.log("Transcript: ", transcript);
+    console.log("Listening: ", listening);
+  }, [transcript, listening]);
   useEffect(()=>{
     const processTranscript = async () => {
       const spokenText = transcript?.toLowerCase();
