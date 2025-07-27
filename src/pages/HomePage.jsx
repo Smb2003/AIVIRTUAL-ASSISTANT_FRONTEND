@@ -13,13 +13,14 @@ const HomePage = () => {
   const [singleUser,setSingleUser] = useState(null);
   const [spoken, setSpoken] = useState(false);
   const {user} = getAuth();
+  const [transcript,setTranscript ] = useState('');
 
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition
-  } = useSpeechRecognition();
+  // const {
+  //   transcript,
+  //   listening,
+  //   resetTranscript,
+  //   browserSupportsSpeechRecognition
+  // } = useSpeechRecognition();
 
   const handleSubmitForm = async () => {
     await logOut();
@@ -82,58 +83,64 @@ const HomePage = () => {
     setTriggerWord(getVirtualAssistantData?.assistantName?.toLowerCase());
   },[getVirtualAssistantData])
   
-  
+
   useEffect(() => {
-    if (!browserSupportsSpeechRecognition) {
-      alert("Browser doesn't support Speech Recognition");
-      return <span>Browser doesn't support speech recognition.</span>;
-      
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Your browser doesn't support Speech Recognition");
+      return;
     }
 
-    const handleClickToStart = () => {
-      SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
-      window.removeEventListener('click', handleClickToStart);
-      console.log("🎙️ Mic started");
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      console.log("Mic started automatically");
     };
 
-    window.addEventListener('click', handleClickToStart);
+    recognition.onresult = async (event) => {
+      const result = event.results[event.results.length - 1][0].transcript;
+      console.log("Result :", result);
 
-    return () => {
-      SpeechRecognition.abortListening();
-      window.removeEventListener('click', handleClickToStart);
-      console.log("🔇 Mic stopped");
-    };
-  }, []);
-
-  useEffect(() => {
-    console.log("Transcript: ", transcript);
-    console.log("Listening: ", listening);
-  }, [transcript, listening]);
-
-  useEffect(()=>{
-    const processTranscript = async () => {
-      const spokenText = transcript?.toLowerCase();
-      console.log(spokenText)
+      const spokenText = result.toLowerCase();
+      setTranscript(spokenText)
       if (spokenText.includes(triggerWord) && !spoken) {
         setSpoken(true);
 
         const response = await gemini(spokenText);
-          handleCommand(response);
-        
-        // setTimeout(() => {
-        //   console.log("SetTimeOutCalled;")
-        //   handleCommand(response);
-        // }, 200);
+        handleCommand(response);
 
         setTimeout(() => {
-          resetTranscript();
-          setSpoken(false); 
+          setSpoken(false);
+          setTranscript("")
+
         }, 4000);
       }
     };
 
-    processTranscript();
-  },[transcript])
+    recognition.onerror = (event) => {
+      console.error("Speech Recognition Error:", event.error);
+    };
+
+    recognition.onend = () => {
+      console.log("Restarting mic...");
+      recognition.start();
+    };
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(() => {
+      recognition.start();
+    }).catch((err) => {
+      console.error("Mic permission error:", err);
+    });
+
+    return () => {
+      recognition.stop();
+    };
+  }, [triggerWord]);
+
   
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ audio: true })
@@ -151,14 +158,8 @@ const HomePage = () => {
           <img src={AudioGif} alt="" className='w-[150px] h-[100px]' />
         </div>
         <div>
-          {listening && <div><p className="text-white font-xl ">listening</p></div>}
           {(transcript)&&
             <p className="text-white font-xl ">{geminiResponse?.response}</p>}
-            <button
-            className='rounded-md bg-white text-black w-full px-2 py-2 font-semibold hover:cursor-pointer hover:bg-black hover:text-white hover:border hover:border-dashed' 
-            onClick={() => {
-              SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
-            }}>Start Listening</button>
         </div>
         
       </div>
