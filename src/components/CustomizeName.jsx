@@ -23,7 +23,7 @@ const CustomizeName = () => {
             else{
                 setLoading(true);
                 navigate(`/virtualAssistant`);
-                window.location.reload();
+                // window.location.reload();
                 setLoading(false);
             }
         }
