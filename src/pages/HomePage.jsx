@@ -97,7 +97,7 @@ const HomePage = () => {
       if (recognition) {
         recognition.onresult = (e) => {
           console.log("🎧 Manual onresult: ", e);
-        };
+        }};
       console.log("Start listening");
       window.removeEventListener('click', onFirstInteraction); 
     }
