@@ -91,7 +91,7 @@ const HomePage = () => {
   useEffect(()=>{
     console.log("mount,Mic on")
     (()=>{
-      console.log("Listening on");
+      // console.log("Listening on");
       SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
       SpeechRecognition.onstart = () => console.log("🎙️ Mic started");
       SpeechRecognition.onend = () => console.log("🔇 Mic ended");
