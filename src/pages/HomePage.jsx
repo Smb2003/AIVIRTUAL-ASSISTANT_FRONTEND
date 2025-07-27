@@ -89,6 +89,7 @@ const HomePage = () => {
   },[browserSupportsSpeechRecognition])
   
   useEffect(()=>{
+    console.log("mount,Mic on")
   const onFirstInteraction = () => {
     SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
     window.removeEventListener('click', onFirstInteraction);
