@@ -129,7 +129,11 @@ const HomePage = () => {
     processTranscript();
   },[transcript])
   
-  
+  useEffect(() => {
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => console.log("🎤 Access granted — stream active"))
+    .catch(err => console.error("❌ Mic error:", err));
+}, []);
   return (
     <div className='relative'>
       <div className='h-screen w-full flex flex-col justify-center items-center gap-16 bg-gradient-to-t from-black from-20% to-blue-950'>
