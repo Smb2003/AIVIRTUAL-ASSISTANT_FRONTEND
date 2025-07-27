@@ -13,7 +13,8 @@ const HomePage = () => {
   const [spoken, setSpoken] = useState(false);
   const {user} = getAuth();
   const [transcript,setTranscript ] = useState('');
-  const shouldRestartRef = useRef();
+  const shouldRestartRef = useRef(true);
+  const recognitionRef = useRef(null);
   
   const handleSubmitForm = async () => {
     await logOut();
