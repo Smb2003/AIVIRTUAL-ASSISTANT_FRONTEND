@@ -92,6 +92,12 @@ const HomePage = () => {
     console.log("mount,Mic on")
     const  onFirstInteraction = () => {
       SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+      const recognition = SpeechRecognition.getRecognition();
+
+      if (recognition) {
+        recognition.onresult = (e) => {
+          console.log("🎧 Manual onresult: ", e);
+        };
       console.log("Start listening");
       window.removeEventListener('click', onFirstInteraction); 
     }
