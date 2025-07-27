@@ -11,7 +11,7 @@ import { getVirtualAssistanceData } from './Context/virtualAssistant.jsx'
 import RedirectHandler from './pages/RedirectHandler.jsx'
 function App() {
   const {virtualAssistantData} = getVirtualAssistanceData();
-  console.log("V: ",virtualAssistantData)
+  // console.log("V: ",virtualAssistantData)
   
   return (
     <>
