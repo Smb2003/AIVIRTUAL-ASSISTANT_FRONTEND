@@ -98,8 +98,8 @@ const HomePage = () => {
       SpeechRecognition.onerror = e => console.error("❌ Error:", e);
 
     })()
-    window.removeEventListener('click', onFirstInteraction);
-    window.addEventListener('click', onFirstInteraction);
+    // window.removeEventListener('click', onFirstInteraction);
+    // window.addEventListener('click', onFirstInteraction);
 
   
   return () => {
