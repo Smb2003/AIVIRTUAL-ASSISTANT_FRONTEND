@@ -44,6 +44,7 @@ const HomePage = () => {
 
   const handleCommand = (data)  => {
     const {type,userinput,response} = data;
+    console.log(response);
     speakText(response);
     
     if(type == "google_search"){
@@ -66,9 +67,7 @@ const HomePage = () => {
     }
     if(type == "youtube_search" || type == "youtube_play"){
       const query = encodeURIComponent(userinput);
-      console.log("Query: ",query);
       setTimeout(() => {
-        console.log("first")
         const win = window.open(`https://www.youtube.com/results?search_query=${query}`, "_blank");
         if (!win) {
           alert("Popup blocked! Please allow popups for this site.");
