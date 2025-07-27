@@ -94,10 +94,14 @@ const HomePage = () => {
       SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
       const recognition = SpeechRecognition.getRecognition();
 
-      if (recognition) {
+      if (recognition){
+        console.log(recognition);
         recognition.onresult = (e) => {
           console.log("🎧 Manual onresult: ", e);
-        }};
+        }}
+        else{
+          console.log("No recognition found.")
+        };
       console.log("Start listening");
       window.removeEventListener('click', onFirstInteraction); 
     }
