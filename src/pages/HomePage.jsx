@@ -90,17 +90,15 @@ const HomePage = () => {
   
   useEffect(()=>{
     console.log("mount,Mic on")
-    (()=>{
-      // console.log("Listening on");
+    const  onFirstInteraction = () => {
       SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+      console.log("Start listening");
       SpeechRecognition.onstart = () => console.log("🎙️ Mic started");
       SpeechRecognition.onend = () => console.log("🔇 Mic ended");
       SpeechRecognition.onerror = e => console.error("❌ Error:", e);
-
-    })()
-    // window.removeEventListener('click', onFirstInteraction);
-    // window.addEventListener('click', onFirstInteraction);
-
+      window.removeEventListener('click', onFirstInteraction); 
+    }
+     window.addEventListener('click', onFirstInteraction);
   
   return () => {
     console.log("unmount")
