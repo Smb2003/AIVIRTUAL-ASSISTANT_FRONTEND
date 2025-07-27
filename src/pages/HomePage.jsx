@@ -141,7 +141,7 @@ const HomePage = () => {
           <img src={AudioGif} alt="" className='w-[150px] h-[100px]' />
         </div>
         <div>
-          {/* <div><button className='text-white' onClick={()=>{speakText(geminiResponse?.response)}}>Speak</button></div> */}
+          {listening && <div><p>listening</p></div>}
           {(transcript)&&
             <p className="text-white font-xl ">{geminiResponse?.response}</p>}
         </div>
