@@ -130,12 +130,6 @@ const HomePage = () => {
       recognition.start();
     };
 
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(() => {
-      recognition.start();
-    }).catch((err) => {
-      console.error("Mic permission error:", err);
-    });
-
     return () => {
       recognition.stop();
     };
