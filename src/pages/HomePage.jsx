@@ -90,7 +90,7 @@ const HomePage = () => {
   
   useEffect(()=>{
     console.log("mount,Mic on")
-    const  onFirstInteraction = () => {
+    const onFirstInteraction = () => {
       SpeechRecognition.startListening({ continuous: true, language: 'en-US',interimResults: false});      
       setTimeout(() => {
         const recognition = SpeechRecognition.getRecognition();
