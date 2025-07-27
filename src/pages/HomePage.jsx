@@ -88,7 +88,7 @@ const HomePage = () => {
       alert("Browser doesn't support the browser.")
       return;
     }
-    const recognition = new SpeechRecognition();
+    const recognition = new speechRecognition();
     recognition.continuous = true;
     recognition.lang = "en-US";
     recognitionRef.current = recognition;
